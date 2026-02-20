@@ -3,59 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAESTRO MSL</title>
+    <title>MAESTRO MSL - LIVE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0e27; color: white; height: 100vh; overflow: hidden; }
-        .top-band { width: 100%; height: 60px; background: #00A3FF; display: flex; justify-content: center; align-items: center; font-weight: bold; text-transform: uppercase; }
-        .page { display: none; height: calc(100vh - 60px); width: 100%; overflow-y: auto; padding: 20px; flex-direction: column; align-items: center; }
-        .active-page { display: flex; animation: fadeIn 0.3s; }
-        .photo-container { width: 100px; height: 100px; background: #1e2548; border: 2px dashed #00A3FF; border-radius: 50%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
-        .photo-container img { width: 100%; height: 100%; object-fit: cover; }
-        .card { width: 100%; max-width: 400px; background: rgba(255,255,255,0.08); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-left: 4px solid #00A3FF; }
-        .contact-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #00A3FF; }
-        #chat-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0e27; z-index: 2000; display: none; flex-direction: column; }
-        .chat-header { height: 70px; background: #1e2548; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; border-bottom: 2px solid #00A3FF; }
-        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 80%; padding: 12px; border-radius: 18px; background: #00A3FF; align-self: flex-end; }
-        #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-main { width: 100%; padding: 15px; background: #00A3FF; border: none; color: white; border-radius: 30px; font-weight: bold; cursor: pointer; }
-        .input-style { width: 100%; padding: 12px; background: #1e2548; border: 1px solid #00A3FF; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: 'Segoe UI', sans-serif; background: #ece5dd; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* HEADER */
+        .header { background: #075e54; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .member-count { background: #25d366; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+
+        /* PAGES */
+        .page { display: none; flex: 1; overflow-y: auto; width: 100%; }
+        .active-page { display: flex; flex-direction: column; }
+
+        /* LISTE DES MEMBRES */
+        .user-row { background: white; padding: 12px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #075e54; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .user-info { flex: 1; }
+        .rank-tag { font-size: 10px; background: #e1f5fe; color: #0288d1; padding: 2px 5px; border-radius: 4px; }
+
+        /* INTERFACE APPEL VIDÉO */
+        #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
+        #remote-video { width: 100%; height: 100%; object-fit: cover; }
+        #local-video { position: absolute; top: 20px; right: 20px; width: 100px; height: 140px; border-radius: 8px; border: 2px solid white; object-fit: cover; z-index: 2001; }
+        
+        .call-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 2002; padding: 0 10px; }
+        .btn-call { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .bg-red { background: #ff4757; }
+        .bg-gray { background: rgba(255,255,255,0.25); }
+        .bg-green { background: #2ecc71; }
+        .btn-main-call { width: 65px; height: 65px; font-size: 24px; }
+
+        /* CHAT */
+        #chat-page { background: #e5ddd5 url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .msg-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     </style>
 </head>
 <body>
-    <div class="top-band">MAESTRO MULTI SERVICES LEADER</div>
+
+    <div class="header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-arrow-left" id="back-btn" style="display:none;" onclick="showHome()"></i>
+            <span id="header-title">MAESTRO MSL</span>
+        </div>
+        <span id="counter-badge" class="member-count">0 Membre(s)</span>
+    </div>
 
     <div id="login-page" class="page">
-        <div style="text-align:center; background:#1e2548; padding:30px; border-radius:20px; width:100%; max-width:350px;">
-            <h2>QUI ES-TU ?</h2>
-            <div class="photo-container" onclick="document.getElementById('file-input').click()">
-                <img id="preview" style="display:none;"><i class="fas fa-camera" id="icon-cam" style="font-size: 2rem; color: #00A3FF;"></i>
-            </div>
-            <input type="file" id="file-input" style="display:none;" onchange="loadPhoto(this)">
-            <input type="text" id="reg-nom" class="input-style" placeholder="Nom Complet">
-            <input type="text" id="reg-poste" class="input-style" placeholder="Poste / Fonction">
-            <button onclick="saveUser()" class="btn-main">VALIDER</button>
+        <div style="padding: 40px 20px; text-align: center;">
+            <h2 style="color:#075e54; margin-bottom:20px;">ESPACE MEMBRE MAESTRO</h2>
+            <input type="text" id="reg-nom" style="width:100%; padding:12px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;" placeholder="Nom Complet">
+            <select id="reg-rank" style="width:100%; padding:12px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;">
+                <option value="1">1. Président / Fondateur</option>
+                <option value="2">2. Secrétaire Général</option>
+                <option value="3">3. Trésorier</option>
+                <option value="4" selected>4. Membre de l'ONG</option>
+            </select>
+            <input type="text" id="reg-poste" style="width:100%; padding:12px; margin-bottom:20px; border-radius:5px; border:1px solid #ccc;" placeholder="Poste Occupé">
+            <button onclick="saveUser()" style="background:#075e54; color:white; width:100%; padding:15px; border:none; border-radius:5px; font-weight:bold;">REJOINDRE</button>
         </div>
     </div>
 
     <div id="members-page" class="page">
-        <h3 style="margin-bottom:20px;">MEMBRES DE L'ONG</h3>
-        <div id="list-container" style="width:100%; max-width:400px;"></div>
+        <div id="list-container"></div>
     </div>
 
-    <div id="chat-page">
-        <div class="chat-header">
-            <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-            <span id="chat-target-name">Nom</span>
-            <div style="display:flex; gap:20px; color:#00A3FF;">
-                <i class="fas fa-phone-alt" onclick="startCall('vocal')"></i>
-                <i class="fas fa-video" onclick="startCall('video')"></i>
-            </div>
+    <div id="chat-page" class="page">
+        <div style="background:#075e54; padding:10px; display:flex; justify-content:flex-end; gap:25px; color:white;">
+            <i class="fas fa-video" onclick="openCallScreen()"></i>
         </div>
-        <div class="chat-body" id="chat-content"></div>
+        <div class="msg-container" id="chat-content"></div>
+    </div>
+
+    <div id="call-screen">
+        <video id="remote-video" autoplay playsinline></video>
+        <video id="local-video" autoplay playsinline muted></video>
+        
+        <div class="call-controls">
+            <button id="toggle-mic" class="btn-call bg-gray" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+            
+            <button id="main-call-btn" class="btn-call bg-green btn-main-call" onclick="handleCallAction()">
+                <i class="fas fa-phone"></i>
+            </button>
+
+            <button id="toggle-cam" class="btn-call bg-gray" onclick="toggleCamera()"><i class="fas fa-video"></i></button>
+            
+            <button id="switch-cam" class="btn-call bg-gray" onclick="switchCamera()" style="display:none;"><i class="fas fa-sync"></i></button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -74,41 +109,131 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let myData = JSON.parse(localStorage.getItem('msl_data'));
-        let photoBase64 = "";
+        let localStream;
+        let isCalling = false;
+        let currentFacingMode = "user"; 
 
-        window.onload = () => { if (!myData) document.getElementById('login-page').classList.add('active-page'); else showHome(); };
+        window.onload = () => { 
+            if (!myData) showPage('login-page'); 
+            else showHome(); 
+            checkCameras(); 
+        };
 
-        function loadPhoto(input) {
-            let r = new FileReader();
-            r.onload = e => { photoBase64 = e.target.result; document.getElementById('preview').src = photoBase64; document.getElementById('preview').style.display = 'block'; document.getElementById('icon-cam').style.display = 'none'; };
-            r.readAsDataURL(input.files[0]);
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(id).classList.add('active-page');
+            document.getElementById('back-btn').style.display = (id === 'chat-page') ? "block" : "none";
         }
 
         function saveUser() {
-            let n = document.getElementById('reg-nom').value, p = document.getElementById('reg-poste').value;
-            if(!n || !p) return alert("Remplis tout !");
-            myData = { id: "u"+Date.now(), name: n, role: p, img: photoBase64 };
+            let n = document.getElementById('reg-nom').value, p = document.getElementById('reg-poste').value, r = document.getElementById('reg-rank').value;
+            if(!n || !p) return alert("Veuillez remplir les champs.");
+            myData = { id: "u"+Date.now(), name: n, role: p, rank: parseInt(r) };
             localStorage.setItem('msl_data', JSON.stringify(myData));
             db.ref('users/' + myData.id).set(myData);
             showHome();
         }
 
         function showHome() {
-            document.getElementById('login-page').classList.remove('active-page');
-            document.getElementById('members-page').classList.add('active-page');
+            showPage('members-page');
+            document.getElementById('header-title').innerText = "MAESTRO MSL";
             db.ref('users').on('value', s => {
-                let cont = document.getElementById('list-container');
-                cont.innerHTML = "";
-                if(s.val()) Object.values(s.val()).forEach(u => {
-                    let c = document.createElement('div');
-                    c.className = "card";
-                    c.innerHTML = `<img src="${u.img || 'https://via.placeholder.com/50'}" class="contact-img"><div><strong>${u.name}</strong><br><small>${u.role}</small></div>`;
-                    cont.appendChild(c);
-                });
+                let cont = document.getElementById('list-container'); cont.innerHTML = "";
+                if(s.val()){
+                    let members = Object.values(s.val());
+                    document.getElementById('counter-badge').innerText = members.length + " Membre(s)";
+                    members.sort((a,b) => a.rank - b.rank); // Tri hiérarchique
+                    members.forEach(u => {
+                        if(u.id === myData.id) return;
+                        let row = document.createElement('div'); row.className = "user-row";
+                        row.onclick = () => { currentChatId = u.id; showPage('chat-page'); document.getElementById('header-title').innerText = u.name; };
+                        row.innerHTML = `<div class="avatar">${u.name.charAt(0)}</div>
+                                         <div class="user-info"><h4>${u.name} <span class="rank-tag">Niv.${u.rank}</span></h4><p>${u.role}</p></div>`;
+                        cont.appendChild(row);
+                    });
+                }
             });
         }
-        function closeChat() { document.getElementById('chat-page').style.display = 'none'; }
-        function startCall(t) { alert("Appel " + t + " en cours..."); }
+
+        // --- GESTION DES APPELS ---
+
+        function openCallScreen() {
+            document.getElementById('call-screen').style.display = "flex";
+            resetCallInterface();
+        }
+
+        async function handleCallAction() {
+            if (!isCalling) {
+                // LANCER L'APPEL
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: currentFacingMode },
+                        audio: true
+                    });
+                    document.getElementById('local-video').srcObject = localStream;
+                    isCalling = true;
+                    // Transformation du bouton en "Raccrocher"
+                    document.getElementById('main-call-btn').classList.replace('bg-green', 'bg-red');
+                    document.getElementById('main-call-btn').innerHTML = '<i class="fas fa-phone-slash"></i>';
+                } catch (e) { alert("Accès caméra/micro refusé."); }
+            } else {
+                // RACCROCHER
+                endCall();
+            }
+        }
+
+        function endCall() {
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            isCalling = false;
+            document.getElementById('call-screen').style.display = "none";
+            resetCallInterface();
+        }
+
+        function resetCallInterface() {
+            const btn = document.getElementById('main-call-btn');
+            btn.classList.replace('bg-red', 'bg-green');
+            btn.innerHTML = '<i class="fas fa-phone"></i>';
+            document.getElementById('toggle-mic').innerHTML = '<i class="fas fa-microphone"></i>';
+            document.getElementById('toggle-cam').innerHTML = '<i class="fas fa-video"></i>';
+        }
+
+        // --- OPTIONS CAMÉRA & MICRO ---
+
+        function toggleMic() {
+            if (!localStream) return;
+            let audioTrack = localStream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            document.getElementById('toggle-mic').innerHTML = audioTrack.enabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+        }
+
+        function toggleCamera() {
+            if (!localStream) return;
+            let videoTrack = localStream.getVideoTracks()[0];
+            videoTrack.enabled = !videoTrack.enabled;
+            document.getElementById('toggle-cam').innerHTML = videoTrack.enabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+        }
+
+        async function switchCamera() {
+            if (!localStream) return;
+            currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+            localStream.getTracks().forEach(t => t.stop());
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentFacingMode },
+                audio: true
+            });
+            document.getElementById('local-video').srcObject = localStream;
+        }
+
+        async function checkCameras() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cameras = devices.filter(d => d.kind === 'videoinput');
+            if (cameras.length > 1) {
+                document.getElementById('switch-cam').style.display = "block";
+            }
+        }
     </script>
 </body>
 </html>
