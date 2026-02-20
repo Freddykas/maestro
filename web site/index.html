@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAESTRO MSL - RÉSEAU ONG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0e27; color: white; height: 100vh; overflow: hidden; }
+        
+        .top-band { width: 100%; height: 60px; background: #00A3FF; display: flex; justify-content: center; align-items: center; font-weight: bold; text-transform: uppercase; z-index: 1000; }
+        .page { display: none; height: calc(100vh - 60px); width: 100%; overflow-y: auto; padding: 20px; flex-direction: column; align-items: center; }
+        .active-page { display: flex; animation: fadeIn 0.4s; }
+
+        /* UPLOAD PHOTO */
+        .photo-upload { width: 100px; height: 100px; background: #0f1430; border: 2px dashed #00A3FF; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-upload i { font-size: 2rem; color: #00A3FF; }
+
+        /* CONTACTS */
+        .card { width: 100%; max-width: 450px; background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #00A3FF; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .contact-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #1e2548; }
+        .status-dot { width: 12px; height: 12px; background: #2ecc71; border-radius: 50%; position: absolute; bottom: 15px; left: 55px; border: 2px solid #0a0e27; }
+
+        /* CHAT */
+        #chat-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0e27; z-index: 2000; display: none; flex-direction: column; }
+        .chat-header { height: 70px; background: #1e2548; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; border-bottom: 2px solid #00A3FF; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 80%; padding: 10px; border-radius: 15px; cursor: pointer; word-wrap: break-word; }
+        .bubble.me { align-self: flex-end; background: #00A3FF; border-bottom-right-radius: 0; }
+
+        /* APPEL */
+        .fluid-call-bg { background: #000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .call-main-icon { font-size: 5rem; color: #2ecc71; animation: pulseGreen 2s infinite; margin: 20px 0; }
+        @keyframes pulseGreen { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #00ff7f; } 100% { transform: scale(1); } }
+        
+        #myVideo { width: 110px; height: 150px; border: 2px solid white; border-radius: 10px; position: absolute; bottom: 100px; right: 20px; object-fit: cover; transform: scaleX(-1); display: none; cursor: pointer; z-index: 3100; }
+        #myVideo.expanded { width: 80%; height: 70%; bottom: 15%; right: 10%; }
+
+        .btn-main { width: 100%; padding: 12px; background: #00A3FF; border: none; color: white; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .input-style { width: 100%; padding: 12px; background: #1e2548; border: 1px solid #00A3FF; color: white; border-radius: 8px; margin-bottom: 10px; outline: none; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="top-band">MAESTRO MULTI SERVICES LEADER</div>
+
+    <div id="login-page" class="page">
+        <div style="background:#1e2548; padding:30px; border-radius:15px; width:100%; max-width:350px; text-align:center;">
+            <h2 style="color:#00A3FF; margin-bottom:20px;">CRÉER MON CONTACT</h2>
+            
+            <div class="photo-upload" onclick="document.getElementById('profile-file').click()">
+                <img id="preview-img" style="display:none;">
+                <i class="fas fa-camera" id="camera-icon"></i>
+            </div>
+            <input type="file" id="profile-file" accept="image/*" style="display:none;" onchange="previewPhoto(this)">
+            
+            <input type="text" id="reg-nom" class="input-style" placeholder="Nom complet">
+            <input type="text" id="reg-poste" class="input-style" placeholder="Fonction / Poste">
+            <button onclick="createProfile()" class="btn-main">S'ENREGISTRER SUR LE SITE</button>
+        </div>
+    </div>
+
+    <div id="members-page" class="page">
+        <div style="width:100%; max-width:450px;">
+            <h3 style="margin-bottom:20px; color:#00A3FF;">ANNUAIRE MSL</h3>
+            <div id="list-container"></div>
+        </div>
+    </div>
+
+    <div id="chat-page">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-arrow-left" onclick="closeChat()"></i>
+                <img id="chat-img" class="contact-img">
+                <span id="chat-target-name">Nom</span>
+            </div>
+            <div id="call-tools" style="display:flex; gap:20px; color:#00A3FF; font-size:1.3rem;">
+                <i class="fas fa-phone-alt" onclick="initCall('VOCAL')"></i>
+                <i class="fas fa-video" onclick="initCall('VIDÉO')"></i>
+            </div>
+        </div>
+        <div class="chat-body" id="chat-content"></div>
+        <div class="chat-footer" style="padding:10px; display:flex; gap:10px; background:#1e2548;">
+            <input type="text" id="chat-input" class="input-style" style="margin-bottom:0; border-radius:25px;" placeholder="Message...">
+            <button onclick="sendMessage()" style="background:#00A3FF; border:none; color:white; width:45px; height:45px; border-radius:50%;"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div id="call-screen" class="fluid-call-bg">
+        <div style="position:absolute; top:80px; text-align:center;">
+            <div id="call-type-label" style="opacity:0.7;">APPEL VIDÉO</div>
+            <div id="call-start-hour">--:--</div>
+            <div id="chrono" style="color:#2ecc71; font-size:1.5rem; font-family:monospace;">00:00</div>
+        </div>
+        <div class="call-main-icon"><i class="fas fa-video" id="main-icon-graphic"></i></div>
+        <img id="call-avatar" style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:4px solid white;">
+        <h2 id="call-name" style="margin-top:10px;">Nom</h2>
+        <video id="myVideo" autoplay playsinline muted onclick="this.classList.toggle('expanded')"></video>
+        <button class="btn-main" style="width:70px; height:70px; background:#ff4757; border-radius:50%; margin-top:50px;" onclick="stopCall()">
+            <i class="fas fa-phone-slash"></i>
+        </button>
+        <audio id="snd-outgoing" loop src="https://www.soundjay.com/phone/phone-calling-1.mp3"></audio>
+    </div>
+
+    <script>
+        let myStream = null;
+        let callTimer = null;
+        let seconds = 0;
+        let selectedBase64 = "";
+        let myProfile = JSON.parse(localStorage.getItem('msl_profile_v2'));
+        let members = JSON.parse(localStorage.getItem('msl_members_v2')) || [];
+
+        window.onload = () => {
+            if (!myProfile) document.getElementById('login-page').classList.add('active-page');
+            else showDirectory();
+        };
+
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedBase64 = e.target.result;
+                    document.getElementById('preview-img').src = selectedBase64;
+                    document.getElementById('preview-img').style.display = 'block';
+                    document.getElementById('camera-icon').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function createProfile() {
+            let n = document.getElementById('reg-nom').value;
+            let p = document.getElementById('reg-poste').value;
+            if(!n || !p) return alert("Remplis ton nom et ton poste !");
+            
+            myProfile = { id: Date.now(), name: n, role: p, img: selectedBase64 || "", online: true };
+            localStorage.setItem('msl_profile_v2', JSON.stringify(myProfile));
+            members.push(myProfile);
+            localStorage.setItem('msl_members_v2', JSON.stringify(members));
+            showDirectory();
+        }
+
+        function showDirectory() {
+            document.getElementById('login-page').classList.remove('active-page');
+            document.getElementById('members-page').classList.add('active-page');
+            renderList();
+        }
+
+        function renderList() {
+            let cont = document.getElementById('list-container');
+            cont.innerHTML = "";
+            members.forEach(m => {
+                let d = document.createElement('div');
+                d.className = "card";
+                d.onclick = () => openChat(m);
+                let pic = m.img || `https://ui-avatars.com/api/?name=${m.name}&background=00A3FF&color=fff`;
+                d.innerHTML = `
+                    <img src="${pic}" class="contact-img">
+                    ${m.online ? '<div class="status-dot"></div>' : ''}
+                    <div><strong>${m.name}</strong><br><small style="opacity:0.6">${m.role}</small></div>
+                    ${m.id === myProfile.id ? '<span style="margin-left:auto; background:#00A3FF; font-size:0.7rem; padding:2px 7px; border-radius:10px;">MOI</span>' : ''}
+                `;
+                cont.appendChild(d);
+            });
+        }
+
+        function openChat(user) {
+            document.getElementById('chat-target-name').innerText = user.name;
+            document.getElementById('chat-img').src = user.img || `https://ui-avatars.com/api/?name=${user.name}&background=00A3FF&color=fff`;
+            document.getElementById('call-tools').style.display = (user.id === myProfile.id) ? 'none' : 'flex';
+            document.getElementById('chat-page').style.display = 'flex';
+        }
+
+        function sendMessage() {
+            let inp = document.getElementById('chat-input');
+            if(!inp.value) return;
+            let b = document.createElement('div');
+            b.className = "bubble me";
+            b.innerText = inp.value;
+            b.onclick = function() { if(confirm("Supprimer ?")) this.remove(); };
+            document.getElementById('chat-content').appendChild(b);
+            inp.value = "";
+            document.getElementById('chat-content').scrollTop = document.getElementById('chat-content').scrollHeight;
+        }
+
+        function initCall(type) {
+            document.getElementById('call-name').innerText = document.getElementById('chat-target-name').innerText;
+            document.getElementById('call-avatar').src = document.getElementById('chat-img').src;
+            document.getElementById('call-type-label').innerText = "APPEL " + type;
+            document.getElementById('main-icon-graphic').className = (type==='VIDÉO'?'fas fa-video':'fas fa-microphone');
+            
+            let now = new Date();
+            document.getElementById('call-start-hour').innerText = "Début : " + now.getHours() + ":" + (now.getMinutes()<10?'0':'') + now.getMinutes();
+            
+            document.getElementById('call-screen').style.display = 'flex';
+            document.getElementById('snd-outgoing').play();
+            startChrono();
+            if(type === 'VIDÉO') startCamera();
+        }
+
+        async function startCamera() {
+            try {
+                myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('myVideo').srcObject = myStream;
+                document.getElementById('myVideo').style.display = 'block';
+            } catch(e) { console.error("Caméra indisponible"); }
+        }
+
+        function startChrono() {
+            seconds = 0; clearInterval(callTimer);
+            callTimer = setInterval(() => {
+                seconds++;
+                let m = Math.floor(seconds/60), s = seconds%60;
+                document.getElementById('chrono').innerText = (m<10?'0':'')+m+":"+(s<10?'0':'')+s;
+            }, 1000);
+        }
+
+        function stopCall() {
+            if(myStream) myStream.getTracks().forEach(t => t.stop());
+            document.getElementById('snd-outgoing').pause();
+            clearInterval(callTimer);
+            document.getElementById('call-screen').style.display = 'none';
+            document.getElementById('myVideo').style.display = 'none';
+            alert("Appel terminé. Durée : " + document.getElementById('chrono').innerText);
+        }
+
+        function closeChat() { document.getElementById('chat-page').style.display = 'none'; }
+    </script>
+</body>
+</html>
