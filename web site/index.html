@@ -3,98 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSEL - Système ONG</title>
+    <title>MAMUSEL - ONG Connect</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #1e3a8a; --bg: #efeae2; --border: #e2e8f0; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        :root { --blue: #1e3a8a; --bg: #efeae2; --green: #25d366; --red: #ff3b30; --white: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { height: 100vh; display: flex; background: #f0f2f5; overflow: hidden; }
 
-        /* SIDEBAR GAUCHE */
-        .sidebar { width: 350px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; font-size: 20px; font-weight: bold; color: var(--blue); border-bottom: 1px solid var(--border); }
-        .user-list { flex: 1; overflow-y: auto; }
-        .contact-row { display: flex; align-items: center; gap: 12px; padding: 15px; border-bottom: 1px solid #f8fafc; cursor: pointer; }
+        /* ECRAN D'INSCRIPTION */
+        #overlay { position: fixed; inset: 0; background: var(--blue); z-index: 15000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: white; padding: 30px; border-radius: 20px; width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .upload-area { width: 120px; height: 120px; border: 3px dashed var(--blue); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; background: #f8fafc; }
+        .upload-area img { width: 100%; height: 100%; object-fit: cover; }
+        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn-save { width: 100%; padding: 15px; background: var(--blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-save:hover { background: #152a61; }
 
-        /* SECTION MON PROFIL (BAS GAUCHE) */
-        .my-profile-section { padding: 20px; background: #f8fafc; border-top: 3px solid var(--blue); }
-        .btn-create { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .profile-card { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #ddd; }
+        /* SIDEBAR */
+        .sidebar { width: 350px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; background: var(--white); border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-header h2 { color: var(--blue); font-size: 20px; }
+        #users-list { flex: 1; overflow-y: auto; }
+        .user-row { display: flex; align-items: center; gap: 12px; padding: 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; }
+        .user-row:hover { background: #f1f5f9; }
+        .my-zone { padding: 15px; background: #f1f5f9; border-top: 2px solid var(--blue); display: flex; align-items: center; gap: 10px; }
 
-        /* MODAL FORMULAIRE (COMME SUR L'IMAGE) */
-        #form-overlay { position: fixed; inset: 0; background: rgba(0, 31, 63, 0.85); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        .modal-card { background: white; padding: 30px; border-radius: 20px; width: 450px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .modal-card h2 { color: var(--blue); margin-bottom: 20px; }
-        .photo-upload { width: 100px; height: 100px; border: 2px dashed var(--blue); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
-        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
-        .modal-card input, .modal-card textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        /* ZONE DE CHAT / APPEL */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        .chat-header { padding: 15px; background: #f0f2f5; border-bottom: 1px solid #ddd; display: none; justify-content: space-between; align-items: center; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #ccc; }
 
-        /* ZONE CHAT */
-        .main-chat { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
-        .chat-header { padding: 15px 25px; background: #f0f2f5; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; visibility: hidden; }
-        .msg-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .input-bar { padding: 15px; background: #f0f2f5; display: flex; gap: 15px; align-items: center; visibility: hidden; }
-        .input-bar input { flex: 1; padding: 12px 20px; border-radius: 25px; border: none; outline: none; }
+        /* ECRAN APPEL PLEIN ECRAN */
+        #call-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .caller-img { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--green); margin-bottom: 20px; object-fit: cover; }
+        .call-btns { display: flex; gap: 40px; margin-top: 30px; }
+        .btn-call { width: 70px; height: 70px; border-radius: 50%; border: none; color: white; font-size: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="form-overlay">
-        <div class="modal-card">
-            <h2>Mon Profil MAMUSEL</h2>
-            
-            <div class="photo-upload" onclick="document.getElementById('file-in').click()">
-                <div id="photo-placeholder"><i class="fas fa-camera fa-2x" style="color:#1e3a8a"></i><br><small>Photo</small></div>
-                <img id="preview-img" style="display:none">
+    <div id="overlay" style="display: none;">
+        <div class="modal">
+            <h2 style="color:var(--blue); margin-bottom:10px;">Créer mon Profil</h2>
+            <div class="upload-area" onclick="document.getElementById('pc-file').click()">
+                <div id="plus-icon"><i class="fas fa-camera fa-2x"></i><br><small>Photo PC</small></div>
+                <img id="photo-preview" style="display:none">
             </div>
-            <input type="file" id="file-in" hidden accept="image/*" onchange="previewFile()">
+            <input type="file" id="pc-file" hidden accept="image/*" onchange="handleFile()">
+            <input type="text" id="reg-prenom" placeholder="Ton Prénom">
+            <input type="text" id="reg-nom" placeholder="Ton Nom">
+            <input type="text" id="reg-poste" placeholder="Ton Poste (ex: Coordinateur)">
+            <button class="btn-save" onclick="saveProfile()">DÉMARRER</button>
+        </div>
+    </div>
 
-            <input type="text" id="reg-nom" placeholder="Nom">
-            <input type="text" id="reg-prenom" placeholder="Prénom">
-            <input type="email" id="reg-email" placeholder="Adresse Email">
-            <input type="tel" id="reg-tel" placeholder="N° de téléphone">
-            <input type="text" id="reg-poste" placeholder="Ton poste dans l'ONG">
-            
-            <button onclick="saveMyProfile()" class="btn-create" style="margin-top:10px">ENREGISTRER MES INFOS</button>
-            <button onclick="document.getElementById('form-overlay').style.display='none'" style="background:none; border:none; color:red; margin-top:15px; cursor:pointer">Annuler</button>
+    <div id="call-screen">
+        <img id="caller-pic" src="" class="caller-img">
+        <h1 id="caller-name">Appel entrant...</h1>
+        <div class="call-btns">
+            <button class="btn-call" style="background:var(--red);" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="btn-call" style="background:var(--green);" onclick="answerCall()"><i class="fas fa-video"></i></button>
         </div>
     </div>
 
     <div class="sidebar">
-        <div class="sidebar-header">MAMUSEL-ONG</div>
-        <div class="user-list" id="others-list"></div>
-
-        <div class="my-profile-section">
-            <button id="create-btn" class="btn-create" onclick="document.getElementById('form-overlay').style.display='flex'">
-                <i class="fas fa-camera"></i> Créer mon profil
-            </button>
-            <div id="me-card" class="profile-card" style="display:none">
-                <img id="me-pic" src="" class="avatar">
-                <div>
-                    <b id="me-name">Nom</b><br>
-                    <small id="me-poste" style="color:gray"></small>
-                </div>
-            </div>
+        <div class="sidebar-header">
+            <h2>MAMUSEL</h2>
+            <i class="fas fa-sync-alt" style="cursor:pointer; color:var(--blue);" onclick="location.reload()" title="Actualiser"></i>
         </div>
+        <div id="users-list"></div>
+        <div class="my-zone" id="my-info"></div>
     </div>
 
-    <div class="main-chat">
-        <div class="chat-header" id="chat-header">
+    <div class="chat-area">
+        <div class="chat-header" id="c-head">
             <div style="display:flex; align-items:center; gap:10px">
-                <img id="head-pic" src="" class="avatar" style="width:35px; height:35px;">
-                <b id="head-name">Discussion</b>
+                <img id="target-pic" src="" class="avatar">
+                <b id="target-name">...</b>
             </div>
-            <div style="display:flex; gap:20px; color:#54656f">
-                <i class="fas fa-video"></i><i class="fas fa-phone"></i>
-                <i class="fas fa-sign-out-alt" onclick="localStorage.clear(); location.reload();" style="cursor:pointer"></i>
+            <div style="display:flex; gap:20px;">
+                <i class="fas fa-video" style="cursor:pointer; color:var(--blue); font-size:20px;" onclick="makeCall('Vidéo')"></i>
+                <i class="fas fa-phone-alt" style="cursor:pointer; color:var(--blue); font-size:20px;" onclick="makeCall('Vocal')"></i>
+                <i class="fas fa-broom" title="Nettoyer TOUS les profils" style="cursor:pointer; color:red; font-size:20px;" onclick="dangerDeleteAll()"></i>
             </div>
         </div>
-        <div class="msg-box" id="msg-box"></div>
-        <div class="input-bar" id="input-bar">
-            <i class="fas fa-paperclip"></i>
-            <input type="text" id="msg-in" placeholder="Tape ton message..." onkeypress="if(event.key==='Enter') send()">
-            <i class="fas fa-microphone"></i>
+        <div id="welcome-msg" style="flex:1; display:flex; align-items:center; justify-content:center; color:#999; flex-direction:column;">
+            <i class="fas fa-comments fa-4x" style="margin-bottom:15px; opacity:0.2;"></i>
+            <p>Sélectionnez un membre de l'ONG pour discuter</p>
         </div>
     </div>
 
@@ -112,71 +107,120 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myData = JSON.parse(localStorage.getItem('mamusel_final'));
-        let photoBase64 = "";
+        let myData = JSON.parse(localStorage.getItem('mamusel_vFinal_PC'));
+        let selectedBase64 = "";
+        let currentTarget = null;
 
-        if(myData) {
-            document.getElementById('create-btn').style.display = 'none';
-            document.getElementById('me-card').style.display = 'flex';
-            document.getElementById('me-name').innerText = myData.prenom + " " + myData.nom;
-            document.getElementById('me-poste').innerText = myData.poste;
-            document.getElementById('me-pic').src = myData.pic;
-            listenUsers();
-        }
+        // VERIFICATION PROFIL
+        if(!myData) { document.getElementById('overlay').style.display = 'flex'; } 
+        else { startSystem(); }
 
-        // PREVISUALISATION DE LA PHOTO DEPUIS L'ORDINATEUR
-        function previewFile() {
-            const file = document.getElementById('file-in').files[0];
+        // GESTION PHOTO PC
+        function handleFile() {
+            const file = document.getElementById('pc-file').files[0];
             const reader = new FileReader();
-            reader.onloadend = function() {
-                photoBase64 = reader.result;
-                document.getElementById('preview-img').src = photoBase64;
-                document.getElementById('preview-img').style.display = 'block';
-                document.getElementById('photo-placeholder').style.display = 'none';
-            }
+            reader.onloadend = () => {
+                selectedBase64 = reader.result;
+                document.getElementById('photo-preview').src = selectedBase64;
+                document.getElementById('photo-preview').style.display = 'block';
+                document.getElementById('plus-icon').style.display = 'none';
+            };
             if(file) reader.readAsDataURL(file);
         }
 
-        // ENREGISTREMENT DES INFOS SAISIES MANUELLEMENT
-        function saveMyProfile() {
-            const u = {
+        // ENREGISTRER FERDINAND
+        function saveProfile() {
+            const data = {
                 uid: "u" + Date.now(),
                 nom: document.getElementById('reg-nom').value,
                 prenom: document.getElementById('reg-prenom').value,
-                email: document.getElementById('reg-email').value,
-                tel: document.getElementById('reg-tel').value,
                 poste: document.getElementById('reg-poste').value,
-                pic: photoBase64 || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                pic: selectedBase64 || "https://via.placeholder.com/150"
             };
-
-            if(!u.nom || !u.prenom) return alert("Remplissez le nom et le prénom !");
-
-            db.ref('final_ong/users/' + u.uid).set(u).then(() => {
-                localStorage.setItem('mamusel_final', JSON.stringify(u));
+            if(!data.nom || !data.prenom) return alert("Remplis ton nom et prénom !");
+            
+            db.ref('users/' + data.uid).set(data).then(() => {
+                localStorage.setItem('mamusel_vFinal_PC', JSON.stringify(data));
                 location.reload();
             });
         }
 
-        function listenUsers() {
-            db.ref('final_ong/users').on('value', snap => {
-                const list = document.getElementById('others-list'); list.innerHTML = "";
+        // SYSTEME PRINCIPAL
+        function startSystem() {
+            document.getElementById('my-info').innerHTML = `
+                <img src="${myData.pic}" class="avatar">
+                <div><b>${myData.prenom} (Moi)</b><br><small>${myData.poste}</small></div>
+                <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-left:auto; cursor:pointer; color:red;"></i>`;
+
+            // Liste des membres (sync en temps réel)
+            db.ref('users').on('value', snap => {
+                const list = document.getElementById('users-list'); list.innerHTML = "";
                 snap.forEach(c => {
                     const u = c.val();
                     if(u.uid !== myData.uid) {
                         const d = document.createElement('div');
-                        d.className = "contact-row";
+                        d.className = "user-row";
                         d.onclick = () => {
-                            activeTarget = u;
-                            document.getElementById('chat-header').style.visibility = 'visible';
-                            document.getElementById('input-bar').style.visibility = 'visible';
-                            document.getElementById('head-name').innerText = u.prenom;
-                            document.getElementById('head-pic').src = u.pic;
+                            currentTarget = u;
+                            document.getElementById('welcome-msg').style.display = 'none';
+                            document.getElementById('c-head').style.display = 'flex';
+                            document.getElementById('target-name').innerText = u.prenom + " " + u.nom;
+                            document.getElementById('target-pic').src = u.pic;
                         };
-                        d.innerHTML = `<img src="${u.pic}" class="avatar"> <b>${u.prenom} ${u.nom}</b>`;
+                        d.innerHTML = `<img src="${u.pic}" class="avatar"><div><b>${u.prenom} ${u.nom}</b><br><small>${u.poste}</small></div>`;
                         list.appendChild(d);
                     }
                 });
             });
+
+            // Ecouteur d'appels entrants
+            db.ref('calls/' + myData.uid).on('value', snap => {
+                const call = snap.val();
+                if(call && call.status === 'ringing') {
+                    document.getElementById('call-screen').style.display = 'flex';
+                    document.getElementById('caller-name').innerText = call.fromName;
+                    document.getElementById('caller-pic').src = call.fromPic;
+                } else {
+                    document.getElementById('call-screen').style.display = 'none';
+                }
+            });
+        }
+
+        // FONCTIONS APPEL
+        function makeCall(type) {
+            if(!currentTarget) return;
+            db.ref('calls/' + currentTarget.uid).set({
+                fromName: myData.prenom,
+                fromPic: myData.pic,
+                status: 'ringing'
+            });
+            alert("Appel " + type + " envoyé...");
+        }
+
+        function endCall() {
+            db.ref('calls/' + myData.uid).remove();
+        }
+
+        function answerCall() {
+            alert("Connexion vidéo établie !");
+            endCall();
+        }
+
+        // --- LA FONCTION QUE TU AS DEMANDÉ POUR SUPPRIMER LES PROFILS ---
+        function dangerDeleteAll() {
+            if(confirm("ATTENTION : Veux-tu supprimer TOUS les profils de la base de données ?")) {
+                db.ref('users').remove().then(() => {
+                    localStorage.clear();
+                    location.reload();
+                });
+            }
+        }
+
+        function logout() {
+            if(confirm("Se déconnecter de ce profil ?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
