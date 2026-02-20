@@ -3,146 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSEL ONG - Final</title>
+    <title>MAMUSEL - Système ONG</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --blue-mamusel: #1e3a8a;
-            --whatsapp-green: #d9fdd3;
-            --bg-chat: #efeae2;
-            --border: #e2e8f0;
-        }
+        :root { --blue: #1e3a8a; --bg: #efeae2; --border: #e2e8f0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { height: 100vh; display: flex; background: #f0f2f5; overflow: hidden; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; height: 100vh; display: flex; overflow: hidden; background: #f0f2f5; }
+        /* SIDEBAR GAUCHE */
+        .sidebar { width: 350px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 20px; font-weight: bold; color: var(--blue); border-bottom: 1px solid var(--border); }
+        .user-list { flex: 1; overflow-y: auto; }
+        .contact-row { display: flex; align-items: center; gap: 12px; padding: 15px; border-bottom: 1px solid #f8fafc; cursor: pointer; }
 
-        /* NAVIGATION LATERALE BLEUE */
-        .nav-sidebar { 
-            width: 70px; background: var(--blue-mamusel); 
-            display: flex; flex-direction: column; align-items: center; padding: 20px 0;
-            justify-content: space-between; flex-shrink: 0;
-        }
-        .nav-group { display: flex; flex-direction: column; gap: 30px; align-items: center; width: 100%; }
-        .nav-item { color: #cbd5e1; font-size: 22px; cursor: pointer; transition: 0.3s; padding: 10px; border-radius: 8px; }
-        .nav-item:hover, .nav-item.active { color: white; background: rgba(255,255,255,0.1); }
+        /* SECTION MON PROFIL (BAS GAUCHE) */
+        .my-profile-section { padding: 20px; background: #f8fafc; border-top: 3px solid var(--blue); }
+        .btn-create { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .profile-card { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #ddd; }
 
-        /* LISTE GAUCHE (CONTACTS/APPELS) */
-        .list-container { width: 350px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-        .list-header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .list-scroll { flex: 1; overflow-y: auto; }
-        
-        .item-row { 
-            display: flex; align-items: center; gap: 15px; padding: 15px; 
-            cursor: pointer; border-bottom: 1px solid #f8fafc; transition: 0.2s;
-        }
-        .item-row:hover { background: #f5f6f6; }
-        .avatar-circle { 
-            width: 48px; height: 48px; border-radius: 50%; background: var(--blue-mamusel); 
-            color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
-        }
+        /* MODAL FORMULAIRE (COMME SUR L'IMAGE) */
+        #form-overlay { position: fixed; inset: 0; background: rgba(0, 31, 63, 0.85); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .modal-card { background: white; padding: 30px; border-radius: 20px; width: 450px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .modal-card h2 { color: var(--blue); margin-bottom: 20px; }
+        .photo-upload { width: 100px; height: 100px; border: 2px dashed var(--blue); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-card input, .modal-card textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
 
-        /* ZONE CENTRALE (CHAT/APPEL) */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); position: relative; }
-        
-        .chat-header { 
-            background: #f0f2f5; padding: 10px 20px; display: flex; align-items: center; 
-            justify-content: space-between; border-bottom: 1px solid var(--border);
-        }
-        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* BULLES DE MESSAGE */
-        .bubble { max-width: 65%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .bubble.sent { align-self: flex-end; background: var(--whatsapp-green); }
-        .bubble.received { align-self: flex-start; background: white; }
-        .msg-time { font-size: 10px; color: #667781; margin-top: 4px; display: block; text-align: right; }
-
-        .input-bar { background: #f0f2f5; padding: 10px 15px; display: flex; align-items: center; gap: 15px; }
-        .input-bar input { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; }
-
-        /* VOLET INFOS DROITE */
-        .info-panel { 
-            width: 0; background: white; border-left: 1px solid var(--border); 
-            transition: 0.3s; overflow: hidden; display: flex; flex-direction: column;
-        }
-        .info-panel.open { width: 400px; }
-        .info-content { padding: 30px; text-align: center; min-width: 400px; }
-        .big-pfp { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; }
-
-        /* APPEL UI */
-        #call-overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
-        }
-
-        .status-tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-        .tag-me { background: #dbeafe; color: #1e40af; }
+        /* ZONE CHAT */
+        .main-chat { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+        .chat-header { padding: 15px 25px; background: #f0f2f5; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; visibility: hidden; }
+        .msg-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .input-bar { padding: 15px; background: #f0f2f5; display: flex; gap: 15px; align-items: center; visibility: hidden; }
+        .input-bar input { flex: 1; padding: 12px 20px; border-radius: 25px; border: none; outline: none; }
     </style>
 </head>
 <body>
 
-    <nav class="nav-sidebar">
-        <div class="nav-group">
-            <div class="nav-item" title="Nouveau profil" onclick="toggleModal(true)"><i class="fas fa-user-plus"></i></div>
-            <div class="nav-item active" onclick="switchView('chats', this)"><i class="fas fa-comment-alt"></i></div>
-            <div class="nav-item" onclick="switchView('calls', this)"><i class="fas fa-phone-alt"></i></div>
-            <div class="nav-item" onclick="switchView('media', this)"><i class="fas fa-images"></i></div>
-        </div>
-        <div class="nav-group">
-            <div class="nav-item"><i class="fas fa-cog"></i></div>
-            <div class="nav-item" style="color:#f87171" onclick="localStorage.clear(); location.reload();"><i class="fas fa-sign-out-alt"></i></div>
-        </div>
-    </nav>
-
-    <div class="list-container">
-        <div class="list-header">
-            <h2 id="list-title" style="color: var(--blue-mamusel)">Discussions</h2>
-        </div>
-        <div class="list-scroll" id="main-list">
+    <div id="form-overlay">
+        <div class="modal-card">
+            <h2>Mon Profil MAMUSEL</h2>
+            
+            <div class="photo-upload" onclick="document.getElementById('file-in').click()">
+                <div id="photo-placeholder"><i class="fas fa-camera fa-2x" style="color:#1e3a8a"></i><br><small>Photo</small></div>
+                <img id="preview-img" style="display:none">
             </div>
+            <input type="file" id="file-in" hidden accept="image/*" onchange="previewFile()">
+
+            <input type="text" id="reg-nom" placeholder="Nom">
+            <input type="text" id="reg-prenom" placeholder="Prénom">
+            <input type="email" id="reg-email" placeholder="Adresse Email">
+            <input type="tel" id="reg-tel" placeholder="N° de téléphone">
+            <input type="text" id="reg-poste" placeholder="Ton poste dans l'ONG">
+            
+            <button onclick="saveMyProfile()" class="btn-create" style="margin-top:10px">ENREGISTRER MES INFOS</button>
+            <button onclick="document.getElementById('form-overlay').style.display='none'" style="background:none; border:none; color:red; margin-top:15px; cursor:pointer">Annuler</button>
+        </div>
     </div>
 
-    <div class="main-content">
-        <div class="chat-header" id="chat-header-ui" style="visibility: hidden;">
-            <div style="display:flex; align-items:center; gap:12px; cursor:pointer" onclick="toggleInfo(true)">
-                <div class="avatar-circle" id="header-avatar" style="width:40px; height:40px">?</div>
+    <div class="sidebar">
+        <div class="sidebar-header">MAMUSEL-ONG</div>
+        <div class="user-list" id="others-list"></div>
+
+        <div class="my-profile-section">
+            <button id="create-btn" class="btn-create" onclick="document.getElementById('form-overlay').style.display='flex'">
+                <i class="fas fa-camera"></i> Créer mon profil
+            </button>
+            <div id="me-card" class="profile-card" style="display:none">
+                <img id="me-pic" src="" class="avatar">
                 <div>
-                    <h4 id="header-name">Nom</h4>
-                    <span style="font-size:12px; color:#667781">Cliquer pour les infos</span>
+                    <b id="me-name">Nom</b><br>
+                    <small id="me-poste" style="color:gray"></small>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="main-chat">
+        <div class="chat-header" id="chat-header">
+            <div style="display:flex; align-items:center; gap:10px">
+                <img id="head-pic" src="" class="avatar" style="width:35px; height:35px;">
+                <b id="head-name">Discussion</b>
+            </div>
             <div style="display:flex; gap:20px; color:#54656f">
-                <i class="fas fa-video" style="cursor:pointer" onclick="makeCall('Vidéo')"></i>
-                <i class="fas fa-phone" style="cursor:pointer" onclick="makeCall('Audio')"></i>
-                <i class="fas fa-search"></i>
+                <i class="fas fa-video"></i><i class="fas fa-phone"></i>
+                <i class="fas fa-sign-out-alt" onclick="localStorage.clear(); location.reload();" style="cursor:pointer"></i>
             </div>
         </div>
-
-        <div class="messages-area" id="msg-box">
-            </div>
-
-        <div class="input-bar" id="input-ui" style="visibility: hidden;">
-            <i class="far fa-smile fa-lg"></i>
-            <i class="fas fa-plus fa-lg"></i>
-            <input type="text" id="msg-input" placeholder="Entrez un message">
-            <i class="fas fa-microphone fa-lg" onclick="sendMessage()"></i>
-        </div>
-    </div>
-
-    <div class="info-panel" id="right-panel">
-        <div style="padding: 20px; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:20px">
-            <i class="fas fa-times" style="cursor:pointer" onclick="toggleInfo(false)"></i>
-            <h3>Infos du contact</h3>
-        </div>
-        <div class="info-content" id="info-body">
-            </div>
-    </div>
-
-    <div id="call-overlay">
-        <div class="avatar-circle" style="width:120px; height:120px; font-size:40px" id="call-pfp">?</div>
-        <h2 id="call-target" style="margin-top:20px">Nom</h2>
-        <p id="call-type">Appel Audio...</p>
-        <div style="margin-top:50px; display:flex; gap:30px">
-            <button onclick="endCall()" style="width:60px; height:60px; border-radius:50%; background:#ef4444; border:none; color:white"><i class="fas fa-phone-slash fa-lg"></i></button>
+        <div class="msg-box" id="msg-box"></div>
+        <div class="input-bar" id="input-bar">
+            <i class="fas fa-paperclip"></i>
+            <input type="text" id="msg-in" placeholder="Tape ton message..." onkeypress="if(event.key==='Enter') send()">
+            <i class="fas fa-microphone"></i>
         </div>
     </div>
 
@@ -160,145 +112,72 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let myData = JSON.parse(localStorage.getItem('mamusel_user'));
-        let activeContact = null;
-        let currentMode = 'chats';
+        let myData = JSON.parse(localStorage.getItem('mamusel_final'));
+        let photoBase64 = "";
 
-        // 1. GESTION DES VUES (CHATS / APPELS / MEDIA)
-        function switchView(mode, el) {
-            currentMode = mode;
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('list-title').innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
-            loadSidebar();
+        if(myData) {
+            document.getElementById('create-btn').style.display = 'none';
+            document.getElementById('me-card').style.display = 'flex';
+            document.getElementById('me-name').innerText = myData.prenom + " " + myData.nom;
+            document.getElementById('me-poste').innerText = myData.poste;
+            document.getElementById('me-pic').src = myData.pic;
+            listenUsers();
         }
 
-        // 2. CHARGEMENT DE LA LISTE GAUCHE
-        function loadSidebar() {
-            const list = document.getElementById('main-list');
-            list.innerHTML = "";
-            
-            if (currentMode === 'chats') {
-                db.ref('users').on('value', snap => {
-                    list.innerHTML = "";
-                    snap.forEach(child => {
-                        const u = child.val();
-                        const isMe = myData && u.uid === myData.uid;
-                        const row = document.createElement('div');
-                        row.className = "item-row";
-                        row.onclick = () => selectContact(u);
-                        row.innerHTML = `
-                            <div class="avatar-circle">${u.name[0]}</div>
-                            <div style="flex:1">
-                                <b>${u.name} ${isMe ? '<span class="status-tag tag-me">vous</span>' : ''}</b>
-                                <p style="font-size:12px; color:#667781">${u.role || 'Membre'}</p>
-                            </div>
-                        `;
-                        list.appendChild(row);
-                    });
-                });
-            } else if (currentMode === 'calls') {
-                db.ref('calls/' + myData.uid).on('value', snap => {
-                    list.innerHTML = "";
-                    snap.forEach(child => {
-                        const c = child.val();
-                        const row = document.createElement('div');
-                        row.className = "item-row";
-                        row.innerHTML = `
-                            <div class="avatar-circle" style="background:#e2e8f0; color:#64748b"><i class="fas fa-phone"></i></div>
-                            <div style="flex:1">
-                                <b>${c.targetName}</b>
-                                <p style="font-size:11px; color:${c.status === 'Manqué' ? 'red' : 'green'}">
-                                    <i class="fas fa-arrow-up-right"></i> ${c.status} • ${c.time}
-                                </p>
-                            </div>
-                        `;
-                        list.appendChild(row);
-                    });
-                });
+        // PREVISUALISATION DE LA PHOTO DEPUIS L'ORDINATEUR
+        function previewFile() {
+            const file = document.getElementById('file-in').files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                photoBase64 = reader.result;
+                document.getElementById('preview-img').src = photoBase64;
+                document.getElementById('preview-img').style.display = 'block';
+                document.getElementById('photo-placeholder').style.display = 'none';
             }
+            if(file) reader.readAsDataURL(file);
         }
 
-        // 3. SELECTION D'UN CONTACT ET CHAT
-        function selectContact(u) {
-            activeContact = u;
-            document.getElementById('chat-header-ui').style.visibility = 'visible';
-            document.getElementById('input-ui').style.visibility = 'visible';
-            document.getElementById('header-name').innerText = u.name;
-            document.getElementById('header-avatar').innerText = u.name[0];
-            loadMessages();
-            toggleInfo(false);
+        // ENREGISTREMENT DES INFOS SAISIES MANUELLEMENT
+        function saveMyProfile() {
+            const u = {
+                uid: "u" + Date.now(),
+                nom: document.getElementById('reg-nom').value,
+                prenom: document.getElementById('reg-prenom').value,
+                email: document.getElementById('reg-email').value,
+                tel: document.getElementById('reg-tel').value,
+                poste: document.getElementById('reg-poste').value,
+                pic: photoBase64 || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            };
+
+            if(!u.nom || !u.prenom) return alert("Remplissez le nom et le prénom !");
+
+            db.ref('final_ong/users/' + u.uid).set(u).then(() => {
+                localStorage.setItem('mamusel_final', JSON.stringify(u));
+                location.reload();
+            });
         }
 
-        function loadMessages() {
-            const id = myData.uid < activeContact.uid ? myData.uid+"_"+activeContact.uid : activeContact.uid+"_"+myData.uid;
-            db.ref('chats/' + id).on('value', snap => {
-                const box = document.getElementById('msg-box');
-                box.innerHTML = "";
-                snap.forEach(child => {
-                    const m = child.val();
-                    const div = document.createElement('div');
-                    div.className = `bubble ${m.sender === myData.uid ? 'sent' : 'received'}`;
-                    div.innerHTML = `${m.text} <span class="msg-time">${m.time}</span>`;
-                    box.appendChild(div);
+        function listenUsers() {
+            db.ref('final_ong/users').on('value', snap => {
+                const list = document.getElementById('others-list'); list.innerHTML = "";
+                snap.forEach(c => {
+                    const u = c.val();
+                    if(u.uid !== myData.uid) {
+                        const d = document.createElement('div');
+                        d.className = "contact-row";
+                        d.onclick = () => {
+                            activeTarget = u;
+                            document.getElementById('chat-header').style.visibility = 'visible';
+                            document.getElementById('input-bar').style.visibility = 'visible';
+                            document.getElementById('head-name').innerText = u.prenom;
+                            document.getElementById('head-pic').src = u.pic;
+                        };
+                        d.innerHTML = `<img src="${u.pic}" class="avatar"> <b>${u.prenom} ${u.nom}</b>`;
+                        list.appendChild(d);
+                    }
                 });
-                box.scrollTop = box.scrollHeight;
             });
         }
-
-        function sendMessage() {
-            const input = document.getElementById('msg-input');
-            if(!input.value || !activeContact) return;
-            const id = myData.uid < activeContact.uid ? myData.uid+"_"+activeContact.uid : activeContact.uid+"_"+myData.uid;
-            db.ref('chats/' + id).push({
-                sender: myData.uid,
-                text: input.value,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
-            input.value = "";
-        }
-
-        // 4. INFOS DU CONTACT (VOLET DROITE)
-        function toggleInfo(open) {
-            const panel = document.getElementById('right-panel');
-            if(open && activeContact) {
-                panel.classList.add('open');
-                document.getElementById('info-body').innerHTML = `
-                    <div class="avatar-circle" style="width:150px; height:150px; font-size:50px; margin: 0 auto 20px">${activeContact.name[0]}</div>
-                    <h2>${activeContact.name}</h2>
-                    <p style="color:#667781">${activeContact.role}</p>
-                    <hr style="margin:20px 0; border:0; border-top:1px solid #eee">
-                    <div style="text-align:left; font-size:14px">
-                        <p><b>Email:</b> ${activeContact.email}</p><br>
-                        <p><b>Tel:</b> ${activeContact.tel}</p><br>
-                        <p><b>Domicile:</b> ${activeContact.pays}, ${activeContact.ville}</p>
-                        <p>${activeContact.quartier}, Av. ${activeContact.avenue}</p>
-                    </div>
-                `;
-            } else {
-                panel.classList.remove('open');
-            }
-        }
-
-        // 5. APPELS
-        function makeCall(type) {
-            document.getElementById('call-overlay').style.display = 'flex';
-            document.getElementById('call-target').innerText = activeContact.name;
-            document.getElementById('call-pfp').innerText = activeContact.name[0];
-            document.getElementById('call-type').innerText = "Appel " + type + " en cours...";
-            
-            db.ref('calls/' + myData.uid).push({
-                targetName: activeContact.name,
-                status: 'Sortant',
-                time: new Date().toLocaleString(),
-                type: type
-            });
-        }
-        function endCall() { document.getElementById('call-overlay').style.display = 'none'; }
-
-        if(myData) loadSidebar();
-        else alert("Veuillez créer votre profil d'abord via le bouton en haut à gauche.");
-
     </script>
 </body>
 </html>
