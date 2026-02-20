@@ -81,7 +81,6 @@
     <div id="call-screen">
         <div class="pulse"><i class="fas fa-phone-volume"></i></div>
         <h2 id="call-name" style="margin-top:20px;">Appel en cours...</h2>
-        <div id="call-timer" style="color:#2ecc71; margin-top:10px;">00:00</div>
         <button onclick="endCall()" style="margin-top:50px; background:#ff4757; width:70px; height:70px; border-radius:50%; border:none; color:white; font-size:1.5rem;"><i class="fas fa-phone-slash"></i></button>
     </div>
 
@@ -89,7 +88,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyCKc2567T72Zz9NPxYPl_CQqyK9oFA6e5Q",
             authDomain: "maestro-321be.firebaseapp.com",
@@ -162,6 +160,7 @@
             b.innerText = i.value;
             document.getElementById('chat-content').appendChild(b);
             i.value = "";
+            document.getElementById('chat-content').scrollTop = document.getElementById('chat-content').scrollHeight;
         }
 
         function startCall(t) {
