@@ -11,39 +11,28 @@
         .top-band { width: 100%; height: 60px; background: #00A3FF; display: flex; justify-content: center; align-items: center; font-weight: bold; text-transform: uppercase; }
         .page { display: none; height: calc(100vh - 60px); width: 100%; overflow-y: auto; padding: 20px; flex-direction: column; align-items: center; }
         .active-page { display: flex; animation: fadeIn 0.3s; }
-        
-        /* PROFIL & LISTE */
         .photo-container { width: 100px; height: 100px; background: #1e2548; border: 2px dashed #00A3FF; border-radius: 50%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
         .photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .card { width: 100%; max-width: 400px; background: rgba(255,255,255,0.08); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-left: 4px solid #00A3FF; }
         .contact-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #00A3FF; }
-
-        /* CHAT & APPEL */
         #chat-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0e27; z-index: 2000; display: none; flex-direction: column; }
         .chat-header { height: 70px; background: #1e2548; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; border-bottom: 2px solid #00A3FF; }
         .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .bubble { max-width: 80%; padding: 12px; border-radius: 18px; background: #00A3FF; align-self: flex-end; }
-        
-        /* ECRAN APPEL */
         #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .pulse { font-size: 4rem; color: #2ecc71; animation: blink 1.5s infinite; }
-        
         .btn-main { width: 100%; padding: 15px; background: #00A3FF; border: none; color: white; border-radius: 30px; font-weight: bold; cursor: pointer; }
         .input-style { width: 100%; padding: 12px; background: #1e2548; border: 1px solid #00A3FF; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-
     <div class="top-band">MAESTRO MULTI SERVICES LEADER</div>
 
     <div id="login-page" class="page">
         <div style="text-align:center; background:#1e2548; padding:30px; border-radius:20px; width:100%; max-width:350px;">
-            <h2 style="margin-bottom:20px;">QUI ES-TU ?</h2>
+            <h2>QUI ES-TU ?</h2>
             <div class="photo-container" onclick="document.getElementById('file-input').click()">
-                <img id="preview" style="display:none;">
-                <i class="fas fa-camera" id="icon-cam" style="font-size: 2rem; color: #00A3FF;"></i>
+                <img id="preview" style="display:none;"><i class="fas fa-camera" id="icon-cam" style="font-size: 2rem; color: #00A3FF;"></i>
             </div>
             <input type="file" id="file-input" style="display:none;" onchange="loadPhoto(this)">
             <input type="text" id="reg-nom" class="input-style" placeholder="Nom Complet">
@@ -53,35 +42,20 @@
     </div>
 
     <div id="members-page" class="page">
-        <div style="width:100%; max-width:400px;">
-            <h3 style="margin-bottom:20px; opacity:0.8;">MEMBRES DE L'ONG</h3>
-            <div id="list-container"></div>
-        </div>
+        <h3 style="margin-bottom:20px;">MEMBRES DE L'ONG</h3>
+        <div id="list-container" style="width:100%; max-width:400px;"></div>
     </div>
 
     <div id="chat-page">
         <div class="chat-header">
             <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img id="chat-img" class="contact-img" style="width:35px; height:35px;">
-                <span id="chat-target-name">Nom</span>
-            </div>
+            <span id="chat-target-name">Nom</span>
             <div style="display:flex; gap:20px; color:#00A3FF;">
                 <i class="fas fa-phone-alt" onclick="startCall('vocal')"></i>
                 <i class="fas fa-video" onclick="startCall('video')"></i>
             </div>
         </div>
         <div class="chat-body" id="chat-content"></div>
-        <div style="padding:15px; background:#1e2548; display:flex; gap:10px;">
-            <input type="text" id="chat-input" class="input-style" style="margin:0; border-radius:25px;" placeholder="Message...">
-            <button onclick="sendMsg()" style="background:#00A3FF; border:none; color:white; width:45px; height:45px; border-radius:50%;"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-
-    <div id="call-screen">
-        <div class="pulse"><i class="fas fa-phone-volume"></i></div>
-        <h2 id="call-name" style="margin-top:20px;">Appel en cours...</h2>
-        <button onclick="endCall()" style="margin-top:50px; background:#ff4757; width:70px; height:70px; border-radius:50%; border:none; color:white; font-size:1.5rem;"><i class="fas fa-phone-slash"></i></button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -91,31 +65,22 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCKc2567T72Zz9NPxYPl_CQqyK9oFA6e5Q",
             authDomain: "maestro-321be.firebaseapp.com",
-            databaseURL: "https://maestro-321be-default-rtdb.firebaseio.com",
+            databaseURL: "https://maestro-321be-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "maestro-321be",
             storageBucket: "maestro-321be.firebasestorage.app",
             messagingSenderId: "138915525897",
             appId: "1:138915525897:web:32b731374df144b7414fd8"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let myData = JSON.parse(localStorage.getItem('msl_data'));
         let photoBase64 = "";
 
-        window.onload = () => {
-            if (!myData) document.getElementById('login-page').classList.add('active-page');
-            else showHome();
-        };
+        window.onload = () => { if (!myData) document.getElementById('login-page').classList.add('active-page'); else showHome(); };
 
         function loadPhoto(input) {
             let r = new FileReader();
-            r.onload = e => {
-                photoBase64 = e.target.result;
-                document.getElementById('preview').src = photoBase64;
-                document.getElementById('preview').style.display = 'block';
-                document.getElementById('icon-cam').style.display = 'none';
-            };
+            r.onload = e => { photoBase64 = e.target.result; document.getElementById('preview').src = photoBase64; document.getElementById('preview').style.display = 'block'; document.getElementById('icon-cam').style.display = 'none'; };
             r.readAsDataURL(input.files[0]);
         }
 
@@ -132,44 +97,18 @@
             document.getElementById('login-page').classList.remove('active-page');
             document.getElementById('members-page').classList.add('active-page');
             db.ref('users').on('value', s => {
-                let list = s.val() ? Object.values(s.val()) : [];
                 let cont = document.getElementById('list-container');
                 cont.innerHTML = "";
-                list.forEach(u => {
+                if(s.val()) Object.values(s.val()).forEach(u => {
                     let c = document.createElement('div');
                     c.className = "card";
-                    c.onclick = () => openChat(u);
-                    let img = u.img || `https://ui-avatars.com/api/?name=${u.name}&background=00A3FF&color=fff`;
-                    c.innerHTML = `<img src="${img}" class="contact-img"><div><strong>${u.name}</strong><br><small>${u.role}</small></div>`;
+                    c.innerHTML = `<img src="${u.img || 'https://via.placeholder.com/50'}" class="contact-img"><div><strong>${u.name}</strong><br><small>${u.role}</small></div>`;
                     cont.appendChild(c);
                 });
             });
         }
-
-        function openChat(u) {
-            document.getElementById('chat-target-name').innerText = u.name;
-            document.getElementById('chat-img').src = u.img || `https://ui-avatars.com/api/?name=${u.name}&background=00A3FF&color=fff`;
-            document.getElementById('chat-page').style.display = 'flex';
-        }
-
-        function sendMsg() {
-            let i = document.getElementById('chat-input');
-            if(!i.value) return;
-            let b = document.createElement('div');
-            b.className = "bubble";
-            b.innerText = i.value;
-            document.getElementById('chat-content').appendChild(b);
-            i.value = "";
-            document.getElementById('chat-content').scrollTop = document.getElementById('chat-content').scrollHeight;
-        }
-
-        function startCall(t) {
-            document.getElementById('call-name').innerText = "Appel " + t + " avec " + document.getElementById('chat-target-name').innerText;
-            document.getElementById('call-screen').style.display = 'flex';
-        }
-
-        function endCall() { document.getElementById('call-screen').style.display = 'none'; }
         function closeChat() { document.getElementById('chat-page').style.display = 'none'; }
+        function startCall(t) { alert("Appel " + t + " en cours..."); }
     </script>
 </body>
 </html>
