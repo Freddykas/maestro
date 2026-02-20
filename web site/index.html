@@ -3,299 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSEL - Plateforme ONG</title>
+    <title>MAMUSEL ONG - Officiel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --main-blue: #1e3a8a;
-            --light-blue: #dbeafe;
-            --bg-gray: #f0f2f5;
-            --border-color: #e2e8f0;
-        }
-
+        :root { --main-blue: #1e3a8a; --bg-gray: #f0f2f5; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg-gray); height: 100vh; display: flex; overflow: hidden; }
-
-        /* BARRE LATERALE GAUCHE (ICONES) */
-        .side-icons { width: 60px; background: #f0f2f5; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 15px 0; }
-        .side-icons i { font-size: 22px; color: #54656f; margin-bottom: 25px; cursor: pointer; transition: 0.3s; }
-        .side-icons i:hover { color: var(--main-blue); }
-        .user-mini-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; margin-top: auto; cursor: pointer; border: 2px solid transparent; }
-        .user-mini-avatar:hover { border-color: var(--main-blue); }
-
-        /* LISTE DES DISCUSSIONS */
-        .sidebar-list { width: 30%; min-width: 300px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; resize: horizontal; overflow: auto; }
-        .sidebar-header { padding: 15px; background: #f0f2f5; }
-        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--main-blue); margin-bottom: 15px; }
-        .logo-area img { width: 30px; height: 30px; border-radius: 5px; }
-        .search-box { background: white; border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid #eef0f2; }
-        .search-box input { border: none; outline: none; width: 100%; font-size: 14px; }
-
-        .contacts-scroll { flex: 1; overflow-y: auto; }
-        .contact-item { display: flex; padding: 12px 15px; align-items: center; gap: 15px; border-bottom: 1px solid #f8fafc; cursor: pointer; }
-        .contact-item:hover { background: #f5f6f6; }
-        .contact-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--main-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        /* ZONE DE CHAT PRINCIPALE */
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #efeae2; position: relative; }
-        .chat-header { background: #f0f2f5; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); }
-        .current-user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background-image: none !important; background-color: #efeae2; } /* Suppression gribouillage */
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-gray); height: 100vh; display: flex; overflow: hidden; cursor: none; }
         
-        /* VOLET INFOS DROITE */
-        #info-panel { width: 350px; background: white; border-left: 1px solid var(--border-color); display: none; flex-direction: column; overflow-y: auto; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .info-header { padding: 20px; display: flex; align-items: center; gap: 20px; font-weight: bold; border-bottom: 1px solid var(--border-color); }
-        .info-content { padding: 20px; text-align: center; }
-        .big-avatar { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .info-details { text-align: left; margin-top: 20px; }
-        .info-details label { font-size: 12px; color: #667781; display: block; margin-top: 15px; }
-        .info-details p { font-size: 15px; color: #111b21; border-bottom: 1px solid #f0f2f5; padding-bottom: 5px; }
+        /* CURSEUR MAGIQUE (Inversion de couleur) */
+        #cursor { width: 20px; height: 20px; background: white; border-radius: 50%; position: fixed; pointer-events: none; z-index: 99999; mix-blend-mode: difference; transform: translate(-50%, -50%); display: none; }
 
-        /* FENETRE APPEL */
-        #call-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        /* STRUCTURE */
+        .side-icons { width: 60px; background: #f0f2f5; border-right: 1px solid #ddd; display: flex; flex-direction: column; align-items: center; padding: 15px 0; }
+        .sidebar-list { width: 350px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #efeae2; }
+
+        /* AUTHENTIFICATION */
+        #auth-screen { position: fixed; inset: 0; background: var(--main-blue); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; }
+        .auth-card input, .auth-card select { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; }
+
+        /* LISTES */
+        .header-box { padding: 15px; background: #f0f2f5; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .contact-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .contact-item:hover { background: #f9f9f9; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--main-blue); color: white; display: flex; align-items: center; justify-content: center; }
+
+        /* CHAT */
+        .messages-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 70%; padding: 10px; border-radius: 10px; font-size: 14px; position: relative; }
+        .msg.sent { align-self: flex-end; background: #d9fdd3; }
+        .msg.received { align-self: flex-start; background: white; }
+        .msg-time { font-size: 10px; color: #888; margin-top: 5px; display: block; text-align: right; }
+
+        /* APPEL SCREEN */
+        #call-ui { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .call-btns { display: flex; gap: 20px; margin-top: 30px; }
+        .btn-round { width: 60px; height: 60px; border-radius: 50%; border: none; color: white; cursor: pointer; font-size: 20px; }
         
-        /* LOGIN / CREATION COMPTE */
-        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-blue); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; padding: 30px; border-radius: 15px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .auth-card input, .auth-card select { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; }
-        .auth-btn { background: var(--main-blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; margin-top: 20px; cursor: pointer; font-weight: bold; }
-
-        /* BARRE DE SAISIE */
-        .input-bar { background: #f0f2f5; padding: 10px 20px; display: flex; align-items: center; gap: 15px; }
-        .input-bar input { flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none; }
+        /* HISTORIQUE APPELS */
+        .call-log { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+        .missed { color: #ef4444; }
+        .outgoing { color: #22c55e; }
     </style>
 </head>
 <body>
 
-    <div id="auth-overlay">
-        <div class="auth-card" id="auth-content">
-            <h2 style="color:var(--main-blue); text-align: center;">Rejoindre MAMUSEL</h2>
-            <div id="step-1">
-                <input type="email" id="auth-email" placeholder="Votre Email Personnel">
-                <input type="text" id="auth-nom" placeholder="Nom Complet">
-                <input type="date" id="auth-birth" title="Date de naissance">
-                <input type="text" id="auth-poste" placeholder="Poste occupé dans l'ONG">
-                <h4 style="margin-top:15px; font-size: 14px; color: #666;">Domicile :</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <input type="text" id="dom-pays" placeholder="Pays">
-                    <input type="text" id="dom-commune" placeholder="Commune">
-                    <input type="text" id="dom-quartier" placeholder="Quartier">
-                    <input type="text" id="dom-avenue" placeholder="Avenue">
-                </div>
-                <button class="auth-btn" onclick="goToConfirm()">CRÉER MON COMPTE</button>
-            </div>
-            <div id="step-2" style="display:none;">
-                <p style="margin-bottom: 10px; font-size: 14px;">Un code a été envoyé à votre email. Entrez le code secret :</p>
-                <input type="password" id="secret-code" placeholder="Code secret">
-                <button class="auth-btn" onclick="finishAuth()">CONFIRMER</button>
-                <button onclick="location.reload()" style="background:none; border:none; color:grey; width:100%; margin-top:10px; cursor:pointer;">Annuler</button>
-            </div>
+    <div id="cursor"></div>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 style="text-align:center; color:var(--main-blue)">Créer ton profil MAMUSEL</h2>
+            <input type="text" id="reg-name" placeholder="Nom Complet">
+            <input type="email" id="reg-email" placeholder="Email">
+            <input type="text" id="reg-tel" placeholder="Téléphone">
+            <input type="text" id="reg-poste" placeholder="Poste dans l'ONG">
+            <input type="text" id="reg-pays" placeholder="Pays">
+            <input type="password" id="reg-code" placeholder="Code secret (mamusel est mon entreprise)">
+            <button onclick="handleSignUp()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; margin-top:20px; border-radius:8px; cursor:pointer;">CONFIRMER L'INSCRIPTION</button>
         </div>
     </div>
 
     <div class="side-icons">
-        <i class="fas fa-comment-dots" title="Discussions"></i>
-        <i class="fas fa-video" title="Appels" onclick="openCallScreen()"></i>
-        <i class="fas fa-folder-open" id="btn-media" title="Médiathèque" onclick="alert('Médiathèque MAMUSEL ouverte')"></i>
-        <i class="fas fa-cog" title="Paramètres"></i>
-        <i class="fas fa-sign-out-alt" style="margin-top: 20px; color: #ef4444;" title="Déconnexion" onclick="logout()"></i>
-        <img src="https://via.placeholder.com/150" class="user-mini-avatar" id="my-small-avatar" onclick="toggleInfoPanel(true, true)">
+        <i class="fas fa-comment" onclick="showView('chats')"></i>
+        <i class="fas fa-phone" onclick="showView('calls')"></i>
+        <img src="" id="my-avatar-btn" style="width:35px; height:35px; border-radius:50%; margin-top:auto; cursor:pointer;" onclick="viewMyProfile()">
     </div>
 
     <div class="sidebar-list">
-        <div class="sidebar-header">
-            <div class="logo-area">
-                <img src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png" alt="Logo"> 
-                MAMUSEL
-            </div>
-            <div class="search-box">
-                <i class="fas fa-search" style="color: #667781;"></i>
-                <input type="text" placeholder="Rechercher un membre de l'ONG...">
-            </div>
+        <div class="header-box">
+            <span id="view-title">Discussions</span>
         </div>
-        <div class="contacts-scroll" id="contacts-list">
-            </div>
+        <div id="list-content" style="overflow-y:auto; flex:1;"></div>
     </div>
 
     <div class="chat-area">
-        <div class="chat-header">
-            <div class="current-user-info" onclick="toggleInfoPanel(true, false)">
-                <div class="contact-avatar" id="chat-header-avatar">?</div>
-                <div>
-                    <h4 id="chat-header-name">Sélectionnez une discussion</h4>
-                    <span style="font-size: 12px; color: #667781;" id="chat-header-status">cliquez pour voir le profil</span>
-                </div>
+        <div class="header-box" id="chat-header" style="display:none;">
+            <div id="active-contact-info" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <div class="avatar" id="header-avatar"></div>
+                <div id="header-name">Nom</div>
             </div>
-            <div style="display:flex; gap: 20px; color: #54656f;">
-                <i class="fas fa-search" style="cursor:pointer;"></i>
-                <i class="fas fa-ellipsis-v" style="cursor:pointer;" onclick="confirmDeleteAccount()"></i>
+            <div style="display:flex; gap:20px;">
+                <i class="fas fa-phone" onclick="startCall('audio')"></i>
+                <i class="fas fa-video" onclick="startCall('video')"></i>
             </div>
         </div>
-
-        <div class="chat-messages" id="chat-messages-box">
-            </div>
-
-        <div class="input-bar">
-            <i class="far fa-smile icon-btn"></i>
-            <i class="fas fa-paperclip icon-btn" onclick="document.getElementById('file-input').click()"></i>
-            <input type="file" id="file-input" style="display:none" onchange="alert('Fichier prêt à l\'envoi')">
-            <input type="text" id="msg-input" placeholder="Écrire à l'ONG...">
-            <i class="fas fa-microphone icon-btn" onclick="alert('Enregistrement vocal...')"></i>
+        <div class="messages-box" id="msg-container"></div>
+        <div class="header-box" id="input-area" style="display:none;">
+            <input type="text" id="message-input" style="flex:1; padding:10px; border-radius:20px; border:1px solid #ddd; outline:none;" placeholder="Écrire...">
+            <button onclick="sendRealMessage()" style="background:none; border:none; color:var(--main-blue); margin-left:10px;"><i class="fas fa-paper-plane fa-lg"></i></button>
         </div>
     </div>
 
-    <div id="info-panel">
-        <div class="info-header">
-            <i class="fas fa-times" style="cursor:pointer;" onclick="toggleInfoPanel(false)"></i>
-            <span>Infos du membre</span>
-        </div>
-        <div class="info-content">
-            <img src="https://via.placeholder.com/200" class="big-avatar" id="info-avatar">
-            <h2 id="info-name">Freddy Kasongo</h2>
-            <p id="info-tag-me" style="color: var(--main-blue); font-weight: bold; display: none;">(vous)</p>
-            
-            <div class="info-details">
-                <label>POSTE DANS L'ONG</label>
-                <p id="info-role">Directeur Général</p>
-                
-                <label>ADRESSE EMAIL</label>
-                <p id="info-mail">contact@mamusel.com</p>
-                
-                <label>TÉLÉPHONE</label>
-                <p id="info-tel">+33 7 53 92 44 83</p>
-
-                <label>DATE DE NAISSANCE</label>
-                <p id="info-date">15/01/1995</p>
-
-                <label>ADRESSE DE DOMICILE</label>
-                <p id="info-domicile">France, Paris, Bastille, Rue du Port</p>
-                
-                <button style="margin-top: 30px; color: red; border: none; background: none; cursor: pointer;" onclick="alert('Action Corbeille: Suppression des documents')">
-                    <i class="fas fa-trash-alt"></i> Vider la corbeille des documents
-                </button>
-            </div>
+    <div id="call-ui">
+        <div class="avatar" style="width:120px; height:120px; font-size:40px;" id="call-avatar">?</div>
+        <h2 id="call-user-name" style="margin-top:20px;">Utilisateur</h2>
+        <p id="call-status">Appel en cours...</p>
+        <div class="call-btns">
+            <button class="btn-round" style="background:#ef4444;" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="btn-round" style="background:#22c55e;"><i class="fas fa-microphone"></i></button>
         </div>
     </div>
 
-    <div id="call-screen">
-        <img src="https://via.placeholder.com/150" class="big-avatar" style="border: 4px solid white;">
-        <h1 id="call-name">Appel en cours...</h1>
-        <div style="display:flex; gap: 30px; margin-top: 50px;">
-            <button class="btn-call" style="background:#ef4444; width:70px; height:70px; border-radius:50%; border:none; color:white;" onclick="closeCallScreen()">
-                <i class="fas fa-phone-slash fa-2x"></i>
-            </button>
-            <button class="btn-call" style="background:#22c55e; width:70px; height:70px; border-radius:50%; border:none; color:white;">
-                <i class="fas fa-microphone fa-2x"></i>
-            </button>
-        </div>
-    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // DONNÉES SIMULÉES
-        let currentUser = JSON.parse(localStorage.getItem('mamusel_user')) || null;
-        const members = [
-            { id: 1, name: "Serge Mbala", role: "Secrétaire", mail: "serge@ong.com", tel: "+33 6...", birth: "12/05/1990", dom: "RDC, Kinshasa, Gombe, Av. Paix" },
-            { id: 2, name: "Maman", role: "Trésorière", mail: "maman@ong.com", tel: "+33 7...", birth: "01/01/1970", dom: "France, Lyon, Centre, Rue Joie" },
-            { id: 3, name: "Lumière de feu", role: "Coordonnateur", mail: "lumiere@ong.com", tel: "+33 6...", birth: "20/11/1988", dom: "Belgique, Bruxelles, Nord, Rue Espoir" }
-        ];
-
-        // INITIALISATION
-        window.onload = () => {
-            if (currentUser) {
-                document.getElementById('auth-overlay').style.display = 'none';
-                loadContacts();
-            }
+        // CONFIGURATION FIREBASE (La tienne)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKc2567T72Zz9NPxYPl_CQqyK9oFA6e5Q",
+            authDomain: "maestro-321be.firebaseapp.com",
+            databaseURL: "https://maestro-321be-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "maestro-321be",
+            storageBucket: "maestro-321be.firebasestorage.app",
+            messagingSenderId: "138915525897",
+            appId: "1:138915525897:web:32b731374df144b7414fd8"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function loadContacts() {
-            const list = document.getElementById('contacts-list');
-            list.innerHTML = "";
-            members.forEach(m => {
-                const item = document.createElement('div');
-                item.className = "contact-item";
-                item.onclick = () => selectChat(m);
-                item.innerHTML = `
-                    <div class="contact-avatar">${m.name.charAt(0)}</div>
-                    <div style="flex:1">
-                        <h4>${m.name}</h4>
-                        <p style="font-size:12px; color:grey">${m.role}</p>
-                    </div>
-                `;
-                list.appendChild(item);
+        let myProfile = JSON.parse(localStorage.getItem('mamusel_user'));
+        let currentTarget = null;
+        let currentView = 'chats';
+
+        // GESTION SOURIS
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.display = 'block';
+            cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+        });
+
+        // INSCRIPTION
+        function handleSignUp() {
+            const code = document.getElementById('reg-code').value;
+            if(code !== "mamusel est mon entreprise") return alert("Code secret invalide");
+            
+            const user = {
+                uid: "u" + Date.now(),
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                tel: document.getElementById('reg-tel').value,
+                poste: document.getElementById('reg-poste').value,
+                pays: document.getElementById('reg-pays').value
+            };
+            
+            db.ref('users/' + user.uid).set(user);
+            localStorage.setItem('mamusel_user', JSON.stringify(user));
+            location.reload();
+        }
+
+        if(myProfile) {
+            document.getElementById('auth-screen').style.display = 'none';
+            loadApp();
+        }
+
+        function loadApp() {
+            loadMembers();
+            db.ref('users/' + myProfile.uid).on('value', s => {
+                if(s.val()) document.getElementById('my-avatar-btn').src = `https://ui-avatars.com/api/?name=${s.val().name}&background=1e3a8a&color=fff`;
             });
         }
 
-        function selectChat(member) {
-            document.getElementById('chat-header-name').innerText = member.name;
-            document.getElementById('chat-header-avatar').innerText = member.name.charAt(0);
-            document.getElementById('chat-header-status').innerText = "En ligne";
+        function loadMembers() {
+            db.ref('users').on('value', s => {
+                const list = document.getElementById('list-content');
+                list.innerHTML = "";
+                if(currentView === 'chats') {
+                    document.getElementById('view-title').innerText = "Discussions";
+                    s.forEach(child => {
+                        const user = child.val();
+                        if(user.uid === myProfile.uid) return;
+                        const item = document.createElement('div');
+                        item.className = "contact-item";
+                        item.onclick = () => openChat(user);
+                        item.innerHTML = `<div class="avatar">${user.name[0]}</div><div><b>${user.name}</b><br><small>${user.poste}</small></div>`;
+                        list.appendChild(item);
+                    });
+                } else {
+                    loadCallHistory();
+                }
+            });
+        }
+
+        function openChat(user) {
+            currentTarget = user;
+            document.getElementById('chat-header').style.display = 'flex';
+            document.getElementById('input-area').style.display = 'flex';
+            document.getElementById('header-name').innerText = user.name;
+            document.getElementById('header-avatar').innerText = user.name[0];
+            loadMessages();
+        }
+
+        function sendRealMessage() {
+            const text = document.getElementById('message-input').value;
+            if(!text || !currentTarget) return;
+            const chatID = myProfile.uid < currentTarget.uid ? myProfile.uid + "_" + currentTarget.uid : currentTarget.uid + "_" + myProfile.uid;
+            db.ref('chats/' + chatID).push({
+                sender: myProfile.uid,
+                text: text,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                date: new Date().toLocaleDateString()
+            });
+            document.getElementById('message-input').value = "";
+        }
+
+        function loadMessages() {
+            const chatID = myProfile.uid < currentTarget.uid ? myProfile.uid + "_" + currentTarget.uid : currentTarget.uid + "_" + myProfile.uid;
+            db.ref('chats/' + chatID).on('value', s => {
+                const container = document.getElementById('msg-container');
+                container.innerHTML = "";
+                s.forEach(child => {
+                    const m = child.val();
+                    const div = document.createElement('div');
+                    div.className = `msg ${m.sender === myProfile.uid ? 'sent' : 'received'}`;
+                    div.innerHTML = `${m.text} <span class="msg-time">${m.time}</span>`;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // APPELS ET HISTORIQUE
+        function startCall(type) {
+            if(!currentTarget) return;
+            document.getElementById('call-ui').style.display = 'flex';
+            document.getElementById('call-user-name').innerText = currentTarget.name;
+            document.getElementById('call-avatar').innerText = currentTarget.name[0];
             
-            // Préparer les infos pour le volet de droite
-            updateInfoPanel(member, false);
+            // Enregistrer dans l'historique
+            db.ref('calls/' + myProfile.uid).push({
+                targetName: currentTarget.name,
+                type: type,
+                status: 'Sortant',
+                time: new Date().toLocaleString()
+            });
+
+            // Demander accès Caméra/Micro
+            navigator.mediaDevices.getUserMedia({video: type === 'video', audio: true})
+            .then(stream => { console.log("Accès accordé"); })
+            .catch(err => { alert("Erreur accès média : " + err); });
         }
 
-        function toggleInfoPanel(show, isMe = false) {
-            const panel = document.getElementById('info-panel');
-            panel.style.display = show ? 'flex' : 'none';
-            if(isMe) updateInfoPanel(currentUser, true);
+        function endCall() {
+            document.getElementById('call-ui').style.display = 'none';
         }
 
-        function updateInfoPanel(user, isMe) {
-            document.getElementById('info-name').innerText = user.name;
-            document.getElementById('info-role').innerText = user.role || user.poste;
-            document.getElementById('info-mail').innerText = user.mail || user.email;
-            document.getElementById('info-tel').innerText = user.tel || "Non renseigné";
-            document.getElementById('info-date').innerText = user.birth || user.dateBirth;
-            document.getElementById('info-domicile').innerText = user.dom || `${user.pays}, ${user.commune}, ${user.quartier}, ${user.avenue}`;
-            document.getElementById('info-tag-me').style.display = isMe ? 'block' : 'none';
+        function showView(v) {
+            currentView = v;
+            loadMembers();
         }
 
-        // AUTHENTIFICATION
-        function goToConfirm() {
-            const email = document.getElementById('auth-email').value;
-            if(!email) return alert("Entrez votre email");
-            document.getElementById('step-1').style.display = 'none';
-            document.getElementById('step-2').style.display = 'block';
+        function loadCallHistory() {
+            document.getElementById('view-title').innerText = "Appels récents";
+            db.ref('calls/' + myProfile.uid).limitToLast(10).on('value', s => {
+                const list = document.getElementById('list-content');
+                list.innerHTML = "";
+                s.forEach(child => {
+                    const c = child.val();
+                    const item = document.createElement('div');
+                    item.className = "contact-item";
+                    item.innerHTML = `
+                        <div class="avatar">${c.targetName[0]}</div>
+                        <div style="flex:1">
+                            <b>${c.targetName}</b>
+                            <div class="call-log ${c.status === 'Manqué' ? 'missed' : 'outgoing'}">
+                                <i class="fas fa-phone"></i> ${c.status} • ${c.time}
+                            </div>
+                        </div>
+                        <i class="fas fa-${c.type === 'video' ? 'video' : 'phone'} color:var(--main-blue)"></i>
+                    `;
+                    list.appendChild(item);
+                });
+            });
         }
-
-        function finishAuth() {
-            const code = document.getElementById('secret-code').value;
-            if(code === "mamusel est mon entreprise") {
-                const user = {
-                    name: document.getElementById('auth-nom').value,
-                    email: document.getElementById('auth-email').value,
-                    poste: document.getElementById('auth-poste').value,
-                    dateBirth: document.getElementById('auth-birth').value,
-                    pays: document.getElementById('dom-pays').value,
-                    commune: document.getElementById('dom-commune').value,
-                    quartier: document.getElementById('dom-quartier').value,
-                    avenue: document.getElementById('dom-avenue').value
-                };
-                localStorage.setItem('mamusel_user', JSON.stringify(user));
-                location.reload();
-            } else {
-                alert("Code incorrect");
-            }
-        }
-
-        function logout() {
-            if(confirm("Voulez-vous vous déconnecter ?")) {
-                localStorage.removeItem('mamusel_user');
-                location.reload();
-            }
-        }
-
-        function confirmDeleteAccount() {
-            if(confirm("ATTENTION : Supprimer définitivement votre compte MAMUSEL ?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // APPELS
-        function openCallScreen() { document.getElementById('call-screen').style.display = 'flex'; }
-        function closeCallScreen() { document.getElementById('call-screen').style.display = 'none'; }
     </script>
 </body>
 </html>
